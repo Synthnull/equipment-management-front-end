@@ -131,7 +131,7 @@
                "status_id" => $status 
           ];
 
-          $res = callApi($API_BASE_URL . "/modify_manufacturer_by_id/'$manufacturer'", $payload, 'PUT'); 
+          $res = callApi($API_BASE_URL . "/modify_manufacturer_by_id/" . $manufacturer, $payload, 'PUT'); 
           if ($res['status'] === "Success")
           {
             redirect("index.php?msg=ManufacturerEdited");
