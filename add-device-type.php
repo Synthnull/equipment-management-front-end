@@ -50,7 +50,6 @@
                <div class="row">
                    <?php 
                         include("functions.php");
-                        $dblink=db_connect("equipment");
                         if (isset($_REQUEST['msg']) && $_REQUEST['msg']=="DeviceTypeNameInvalid")
                         {
                             echo '<div class="alert alert-danger" role="alert">Device Type name is invalid.</div>';
@@ -74,6 +73,8 @@
 </body>
 </html>
 <?php
+    include_once('functions.php');
+    include_once('api_base_url.php');
     if (isset($_POST['submit']))
     {
        $deviceTypeName=$_POST['deviceType'];
@@ -83,17 +84,16 @@
           redirect("add-device-type.php?msg=DeviceTypeNameInvalid");
        }
 
-       $sql="Select `device_type_id` from `device_types` where `device_type_name`='$deviceTypeName'";
-       $rst=$dblink->query($sql) or
-             die("<p>Something went wrong with $sql<br>".$dblink->error);
-       if ($rst->num_rows<=0)//sn not previously found
-       {
-            $sql="Insert into `device_types` (`device_type_name`, `status_id`) values ('$deviceTypeName', '1')";
-            $dblink->query($sql) or
-                 die("<p>Something went wrong with $sql<br>".$dblink->error);
+       $newDeviceInfo = [
+          "device_type_name" => $deviceTypeName
+       ];
+       global $API_BASE_URL;
+       $res = callApi($API_BASE_URL . "/add_device_type", $newDeviceInfo ,"POST");
+       if ($res['status'] == "Success") {
             redirect("index.php?msg=DeviceTypeAdded");
        }
-        else
-            redirect("add-device-type.php?msg=DeviceTypeExists");
+        else {
+           redirect("add-device-type.php?msg=DeviceTypeExists");
+        }
     }
 ?>

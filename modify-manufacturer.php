@@ -49,23 +49,24 @@
          <div class="container">
                <div class="row">
                   <?php
-                        include("functions.php");
+                        include_once("functions.php");
+                        include_once("api_base_url.php");
+                        global $API_BASE_URL;
+
                         $manufacturers=array();
                         $statuses=array();
-                        $dblink=db_connect("equipment");
-                        $sql="Select `manufacturer_name`,`manufacturer_id` from `manufacturers`";
-                        $result=$dblink->query($sql) or 
-                           die("<p>Something went wrong with $sql<br>".$dblink->error);
-                        while ($data=$result->fetch_array(MYSQLI_ASSOC)) {
+
+                        $res = callApi($API_BASE_URL . "/get_manufacturers", [], 'GET');
+                        foreach ($res['data'] as $data) {
                            $manufacturers[$data['manufacturer_id']]=$data['manufacturer_name'];
                         }
 
-                     $sql="Select `status_name`,`status_id` from `status`";
-                     $result=$dblink->query($sql) or 
-                        die("<p>Something went wrong with $sql<br>".$dblink->error);
-                     while ($data=$result->fetch_array(MYSQLI_ASSOC)) {
+                        $res = callApi($API_BASE_URL . "/get_statuses", [], 'GET');
+
+                        foreach ($res['data'] as $data) {
                         $statuses[$data['status_id']]=$data['status_name'];
-                     }
+                        }
+
                         if (isset($_REQUEST['msg']) && $_REQUEST['msg']=="ManufacturerNameInvalid")
                         {
                             echo '<div class="alert alert-danger" role="alert">Manufacturer name is invalid.</div>';
@@ -111,34 +112,40 @@
 <?php
     if (isset($_POST['save']))
     {
-       $manufacturerName=$_POST['new_manufacturer'];
+       include_once("functions.php");
+       include_once("api_base_url.php");
+       global $API_BASE_URL;
+
+       $newManufacturerName=$_POST['new_manufacturer'];
        $manufacturer = $_POST['manufacturer'];
+       $oldManufacturerName = $manufacturers[$_POST['manufacturer']];
        $status = $_POST['status'];
-       if($manufacturerName) 
+       if($newManufacturerName) 
        {
-          if(!preg_match('/^[A-Z][a-z\s]+$/', $manufacturerName)) 
+          if(!preg_match('/^[A-Z][a-z\s]+$/', $newManufacturerName)) 
           {
              redirect("modify-manufacturer.php?msg=ManufacturerNameInvalid");
           }
-
-          $sql="Select `manufacturer_id` from `manufacturers` where `manufacturer_name`='$manufacturerName' and `manufacturer_id`!='$manufacturer'";
-          $rst=$dblink->query($sql) or
-                die("<p>Something went wrong with $sql<br>".$dblink->error);
-          if ($rst->num_rows<=0)//name not previously found
-          {
-            $sql="UPDATE `manufacturers` SET `manufacturer_name`='$manufacturerName', `status_id`='$status' WHERE `manufacturer_id`='$manufacturer'";
-            $dblink->query($sql) or
-                 die("<p>Something went wrong with $sql<br>".$dblink->error);
-            redirect("index.php?msg=ManufacturerEdited");
-          }
-          else {
-            redirect("modify-manufacturer.php?msg=ManufacturerDuplicate");
-          }
-       } else 
-       {
-       $sql="UPDATE `manufacturers` SET `status_id`='$status' WHERE `manufacturer_id`='$manufacturer'";
-       $dblink->query($sql) or
-            die("<p>Something went wrong with $sql<br>".$dblink->error);
-       redirect("index.php?msg=ManufacturerEdited");
+          
+          $payload = [
+               "manufacturer_name" => $newManufacturerName,
+               "status_id" => $status 
+          ];
+          } else {
+         $payload = [
+               "manufacturer_name" => $oldManufacturerName,
+               "status_id" => $status 
+         ];
        }
-    }
+
+      $res = callApi($API_BASE_URL . "/modify_manufacturer_by_id/" . $manufacturer, $payload, 'PUT'); 
+
+       if ($res['status'] === "Success")
+       {
+         redirect("index.php?msg=ManufacturerEdited");
+       }
+       else {
+          redirect("modify-manufacturer.php?msg=ManufacturerDuplicate");
+       }
+   }
+?>

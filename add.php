@@ -49,23 +49,23 @@
          <div class="container">
                <div class="row">
                    <?php 
-                        include("functions.php");
-                        $dblink=db_connect("equipment");
-                        $sql="Select `device_type_name`,`device_type_id` from `device_types` where `device_types`.`status_id` = '1'";
-                        $result=$dblink->query($sql) or
-                            die("<p>Something went wrong with $sql<br>".$dblink->error);
-                        $devices=array();
-                        $manufacturers=array();
-                        while ($data=$result->fetch_array(MYSQLI_ASSOC)) {
-                           $devices[$data['device_type_id']]=$data['device_type_name'];
+                        include_once("functions.php");
+                        include_once("api_base_url.php");
+                        global $API_BASE_URL;
+
+                        $deviceTypes = array();
+                        $manufacturers = array();
+
+                        $res = callApi($API_BASE_URL . "/get_device_types", [], 'GET');
+                        foreach($res['data'] as $data) {
+                           $deviceTypes[$data['device_type_id']]=$data['device_type_name'];
                         }
-                        $sql="Select `manufacturer_name`,`manufacturer_id` from `manufacturers` where `manufacturers`.`status_id`='1'";
-                        $result=$dblink->query($sql) or 
-                           die("<p>Something went wrong with $sql<br>".$dblink->error);
-                        while ($data=$result->fetch_array(MYSQLI_ASSOC)) {
+
+                        $res = callApi($API_BASE_URL . "/get_manufacturers", [], 'GET');
+                        foreach ($res['data'] as $data) {
                            $manufacturers[$data['manufacturer_id']]=$data['manufacturer_name'];
                         }
-                        if (isset($_REQUEST['msg']) && $_REQUEST['msg']=="DeviceExists")
+                        if (isset($_REQUEST['msg']) && $_REQUEST['msg']=="EquipmentExists")
                         {
                             echo '<div class="alert alert-danger" role="alert">Serial Number already exists in database!</div>';
                         }
@@ -75,7 +75,7 @@
                         <label for="exampleDevice">Device:</label>
                         <select class="form-control" name="device">
                             <?php
-                                foreach($devices as $key=>$value)
+                                foreach($deviceTypes as $key=>$value)
                                     echo '<option value="'.$key.'">'.$value.'</option>';
                             ?>
                         </select>
@@ -103,23 +103,28 @@
 <?php
     if (isset($_POST['submit']))
     {
+        include_once("functions.php");
+        include_once("api_base_url.php");
+        global $API_BASE_URL;
+
         $device=$_POST['device'];
         $manufacturer=$_POST['manufacturer'];
         $serialNumber=trim($_POST['serialnumber']);
-
+        $newEquipmentInfo = [
+            "device_type_id" => $device,
+            "manufacturer_id" => $manufacturer,
+            "serial_number" => $serialNumber,
+            "status_id" => 1
+        ];
         validateSerialNumber($prefix, $body, $serialNumber);
 
-        $sql="Select `device_id` from `devices` where `serial_number_body`='$body' and `serial_number_prefix`='$prefix'";
-        $rst=$dblink->query($sql) or
-             die("<p>Something went wrong with $sql<br>".$dblink->error);
-        if ($rst->num_rows<=0)//sn not previously found
+        $res = callApi($API_BASE_URL . "/add_equipment", $newEquipmentInfo, 'POST');
+
+        if ($res['status'] === "Success")
         {
-            $sql="Insert into `devices` (`device_type_id`,`manufacturer_id`, `serial_number_prefix`, `serial_number_body`) values ('$device','$manufacturer','$prefix','$body')";
-            $dblink->query($sql) or
-                 die("<p>Something went wrong with $sql<br>".$dblink->error);
             redirect("index.php?msg=EquipmentAdded");
         }
         else
-            redirect("add.php?msg=DeviceExists");
+            redirect("add.php?msg=EquipmentExists");
     }
 ?>
