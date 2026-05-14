@@ -36,7 +36,7 @@ function validateSerialNumber(&$prefix, &$body, $serialNumber) : bool {
 }
 
 function callApi($apiUrl, $payload, $method) {
-   json_encode($payload);
+   $payload = json_encode($payload);
    $ch = curl_init($apiUrl);
 
    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
