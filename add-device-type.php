@@ -89,7 +89,7 @@
           "device_type_status" => 1
        ];
        global $API_BASE_URL;
-       $res = callApi($API_BASE_URL . '/add_device_type', $newDeviceInfo ,"POST");
+       $res = callApi($API_BASE_URL . "/add_device_type", $newDeviceInfo ,"POST");
        if ($res['status'] == "Success") {
             redirect("index.php?msg=DeviceTypeAdded");
        }
