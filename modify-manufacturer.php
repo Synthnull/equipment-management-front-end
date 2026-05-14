@@ -116,20 +116,28 @@
        include_once("api_base_url.php");
        global $API_BASE_URL;
 
-       $manufacturerName=$_POST['new_manufacturer'];
+       $newManufacturerName=$_POST['new_manufacturer'];
        $manufacturer = $_POST['manufacturer'];
+       $oldManufacturerName = $manufacturers[$_POST['manufacturer']];
        $status = $_POST['status'];
-       if($manufacturerName) 
+       if($newManufacturerName) 
        {
-          if(!preg_match('/^[A-Z][a-z\s]+$/', $manufacturerName)) 
+          if(!preg_match('/^[A-Z][a-z\s]+$/', $newManufacturerName)) 
           {
              redirect("modify-manufacturer.php?msg=ManufacturerNameInvalid");
           }
           
           $payload = [
-               "manufacturer_name" => $manufacturerName,
+               "manufacturer_name" => $newManufacturerName,
                "status_id" => $status 
           ];
+          }
+       }else {
+         $payload = [
+               "manufacturer_name" => $oldManufacturerName,
+               "status_id" => $status 
+         ];
+       }
 
           $res = callApi($API_BASE_URL . "/modify_manufacturer_by_id/" . $manufacturer, $payload, 'PUT'); 
           if ($res['status'] === "Success")
@@ -138,7 +146,5 @@
           }
           else {
             redirect("modify-manufacturer.php?msg=ManufacturerDuplicate");
-          }
-       }
     }
 ?>
