@@ -54,7 +54,6 @@ function callApi($apiUrl, $payload, $method) {
       'Content-length: ' . strlen($payload)));
 
    $res = curl_exec($ch);
-   curl_close($ch);
 
    $data = json_decode($res, true);
 
