@@ -49,8 +49,8 @@ function callApi($apiUrl, $payload, $method) {
    }
    
    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-      'Content_type: application/json',
-      'Content_length: ' . strlen($payload)));
+      'Content-type: application/json',
+      'Content-length: ' . strlen($payload)));
 
    $res = curl_exec($ch);
    curl_close($ch);
