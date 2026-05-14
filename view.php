@@ -49,31 +49,16 @@
          <div class="container">
                <div class="row">
                   <?php
-                  include("functions.php");
-                  $dblink=db_connect("equipment");
-                        $sql = 'SELECT
-                        d.device_id,
-                        d.device_type_id, 
-                        m.manufacturer_name, 
-                        dt.device_type_name, 
-                        d.serial_number_prefix, 
-                        d.serial_number_body,
-                        s.status_name,
-                        d.manufacturer_id,
-                        d.status_id
-                        FROM devices AS d';
-
-                        $sql .= ' JOIN manufacturers AS m ON d.manufacturer_id = m.manufacturer_id
-                        JOIN device_types AS dt ON d.device_type_id = dt.device_type_id
-                        JOIN status AS s ON d.status_id = s.status_id
-                        WHERE d.device_id=' . $_GET['item_id'];
-                        $result=$dblink->query($sql) or
-                           die("<p>Something went wrong with $sql<br>".$dblink->error);
-                        $data=$result->fetch_array(MYSQLI_ASSOC);
+                  
 
                   if(!isset($_GET['edit_mode']) || $_GET['edit_mode'] == 'false')
                   {
+                     include_once("functions.php");
+                     include_once("api_base_url.php");
+                     global $API_BASE_URL;
                      
+                     $res = callApi($API_BASE_URL . "/get_equipment_by_id/" . $_GET['item_id'], [], 'GET');
+                     $data = $res['data'];
                         echo '<h4>Device Type:</h4>
                               <p>' . $data['device_type_name'] . '</p>
                               <h4>Manufacturer:</h4>
@@ -90,36 +75,40 @@
                         </div>';
 
                   }else if (isset($_GET['edit_mode']) && $_GET['edit_mode'] == 'true') {
-                        $dblink=db_connect("equipment");
-                        $sql="Select `device_type_name`,`device_type_id` from `device_types` where `device_types`.`status_id` = '1'";
-                        $result=$dblink->query($sql) or
-                            die("<p>Something went wrong with $sql<br>".$dblink->error);
-                        $devices=array();
-                        $manufacturers=array();
-                        $statuses=array();
-                        while ($row=$result->fetch_array(MYSQLI_ASSOC)) {
-                           $devices[$row['device_type_id']]=$row['device_type_name'];
+                     include_once("functions.php");
+                     include_once("api_base_url.php");
+                     global $API_BASE_URL;
+
+                     $deviceTypes=array();
+                     $manufacturers=array();
+                     $statuses=array();
+                     $deviceTypes[0]='any';
+                     $manufacturers[0]='any';
+                     $statuses[0]='any';
+                     
+                     $res = callApi($API_BASE_URL . "/get_device_types", [], 'GET');
+                        foreach($res['data'] as $data) {
+                           $deviceTypes[$data['device_type_id']]=$data['device_type_name'];
                         }
-                        $sql="Select `manufacturer_name`,`manufacturer_id` from `manufacturers` where `manufacturers`.`status_id`='1'";
-                        $result=$dblink->query($sql) or 
-                           die("<p>Something went wrong with $sql<br>".$dblink->error);
-                        while ($row=$result->fetch_array(MYSQLI_ASSOC)) {
-                           $manufacturers[$row['manufacturer_id']]=$row['manufacturer_name'];
-                        }
-                     $sql="Select `status_name`,`status_id` from `status`";
-                     $result=$dblink->query($sql) or 
-                        die("<p>Something went wrong with $sql<br>".$dblink->error);
-                     while ($row=$result->fetch_array(MYSQLI_ASSOC)) {
-                        $statuses[$row['status_id']]=$row['status_name'];
+
+                     $res = callApi($API_BASE_URL . "/get_manufacturers", [], 'GET');
+                     foreach ($res['data'] as $data) {
+                        $manufacturers[$data['manufacturer_id']]=$data['manufacturer_name'];
                      }
-                  
+
+                     $res = callApi($API_BASE_URL . "/get_statuses", [], 'GET');
+                     foreach ($res['data'] as $data) {
+                        $statuses[$data['status_id']]=$data['status_name'];
+                     }
+
+                  }
                   ?>
                   <form method="post" action="">
                     <div class="form-group">
                         <label for="exampleDevice">Device:</label>
                         <select class="form-control" name="deviceType">
                             <?php
-                              foreach($devices as $key=>$value) {
+                              foreach($deviceTypes as $key=>$value) {
                                  $selected="";
                                  if($data['device_type_id'] == $key) {
                                     $selected="selected";
@@ -164,7 +153,7 @@
                         <button type="submit" class="btn btn-success" name="save" value="Search">Save</button>
                         <button type="submit" class="btn btn-primary" name="view" value="Search">View</button>
                </form>
-               <?php  }?>
+               <?php  ?>
             </div>
           </div>
       </section>
@@ -185,27 +174,27 @@
     }
     if(isset($_POST['save']))
     {
+        include_once("functions.php");
+        include_once("api_base_url.php");
+        global $API_BASE_URL;
+
         $device=$_POST['deviceType'];
         $manufacturer=$_POST['manufacturer'];
         $serialNumber=trim($_POST['serialnumber']);
         $status = $_POST['status'];
 
         validateSerialNumber($prefix, $body, $serialNumber);
+        $overwrite = [
+            "device_type_id" => $device,
+            "manufacturer_id" => $manufacturer,
+            "serial_number" => $serialNumber,
+            "status_id" => $status
+        ];
 
-        $sql="Select `device_id` from `devices` where `serial_number_body`='$body' and `serial_number_prefix`='$prefix' and `device_id` !='" . $_GET['item_id'] . "'";
-        $rst=$dblink->query($sql) or
-             die("<p>Something went wrong with $sql<br>".$dblink->error);
-        if ($rst->num_rows<=0)//sn not previously found
+        $res = callApi($API_BASE_URL . "/modify_equipment_by_id", $overwrite, 'PUT');
+
+        if ($res['status'] === "Success")
         {
-           $sql="UPDATE `devices` SET 
-              `device_type_id` = '$device',
-              `manufacturer_id` = '$manufacturer',
-              `status_id` = '$status',
-              `serial_number_prefix` = '$prefix',
-              `serial_number_body` = '$body'
-              WHERE `device_id` ='" . $_GET['item_id'] . "'";
-            $dblink->query($sql) or
-                 die("<p>Something went wrong with $sql<br>".$dblink->error);
             redirect("view.php?item_id=" . $_GET['item_id'] . "&edit_mode=true&msg=success");
         }
         else

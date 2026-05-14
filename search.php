@@ -58,8 +58,6 @@
                      include_once("api_base_url.php");
                      global $API_BASE_URL;
 
-
-
                      $deviceTypes=array();
                      $manufacturers=array();
                      $statuses=array();
