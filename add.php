@@ -56,14 +56,12 @@
                         $deviceTypes = array();
                         $manufacturers = array();
 
-                        
-
-                        $res = callApi($API_BASE_URL . "/get_devices", [],'GET');
+                        $res = callApi($API_BASE_URL . "/get_device_types", [],'GET');
                         foreach($res['data'] as $data) {
                            $deviceTypes[$data['device_type_id']]=$data['device_type_name'];
                         }
 
-                        $res = callApi($API_BASE_URL . "/get_manufacturers", [], 'GET');
+                        $res = callApi($API_BASE_URL . "/get_manufacturers", [],'GET');
                         foreach ($res['data'] as $data) {
                            $manufacturers[$data['manufacturer_id']]=$data['manufacturer_name'];
                         }
