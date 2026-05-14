@@ -131,20 +131,21 @@
                "manufacturer_name" => $newManufacturerName,
                "status_id" => $status 
           ];
-          }
-       }else {
+          } else {
          $payload = [
                "manufacturer_name" => $oldManufacturerName,
                "status_id" => $status 
          ];
        }
 
-          $res = callApi($API_BASE_URL . "/modify_manufacturer_by_id/" . $manufacturer, $payload, 'PUT'); 
-          if ($res['status'] === "Success")
-          {
-            redirect("index.php?msg=ManufacturerEdited");
-          }
-          else {
-            redirect("modify-manufacturer.php?msg=ManufacturerDuplicate");
-    }
+      $res = callApi($API_BASE_URL . "/modify_manufacturer_by_id/" . $manufacturer, $payload, 'PUT'); 
+
+       if ($res['status'] === "Success")
+       {
+         redirect("index.php?msg=ManufacturerEdited");
+       }
+       else {
+          redirect("modify-manufacturer.php?msg=ManufacturerDuplicate");
+       }
+   }
 ?>
