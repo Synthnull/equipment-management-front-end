@@ -127,7 +127,7 @@
                             <?php
                               foreach($manufacturers as $key=>$value) {
                                  $selected="";
-                                 if($itemData['manufacturer_name'] == $key) {
+                                 if($itemData['manufacturer_name'] === $value) {
                                      $selected="selected";
                                  } 
                                  echo '<option ' . $selected . ' value="'.$key.'">'.$value.'</option>';
@@ -141,7 +141,7 @@
                         <?php
                         foreach($statuses as $key=>$value) {
                            $selected="";
-                           if($itemData['status_id'] == $key) {
+                           if($itemData['status_id'] === $value) {
                               $selected="selected";
                            } 
                            echo '<option ' . $selected . ' value="'.$key.'">'.$value.'</option>';
@@ -151,7 +151,7 @@
                    </div>
                    <div class="form-group">
                         <label for="exampleSerial">Serial Number:</label>
-                        <?php echo '<input type="text" class="form-control" value="' . $data['serial_number_prefix'] . '-' . $data['serial_number_body'] . '" id="serialInput" name="serialnumber">'; ?>
+                        <?php echo '<input type="text" class="form-control" value="' . $itemData['serial_number_prefix'] . '-' . $itemData['serial_number_body'] . '" id="serialInput" name="serialnumber">'; ?>
                    </div>
                         <button type="submit" class="btn btn-success" name="save" value="Search">Save</button>
                         <button type="submit" class="btn btn-primary" name="view" value="Search">View</button>
