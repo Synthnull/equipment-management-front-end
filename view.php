@@ -198,9 +198,9 @@
 
         if ($res['status'] === "Success")
         {
-            redirect("view.php?item_id=" . $_GET['item_id'] . "&edit_mode=true&msg=success");
+            redirect("view.php?item_id=" . $_GET['item_id'] . "&edit_mode=false&msg=success");
         }
         else
-            redirect("view.php?item_id=" . $_GET['item_id'] . "&edit_mode=true&msg=duplicate");
+            redirect("view.php?item_id=" . $_GET['item_id'] . "&edit_mode=false&msg=duplicate");
     }
 ?>
