@@ -47,13 +47,7 @@
       <section id="feature">
          <div class="container">
           <div class="row">
-                     <?php
-                     if(!isset($_GET['page'])) {
-                        $page = 0;
-                     }else {
-                        $page = $_GET['page'];
-                     }
-                     
+                  <?php
                      include_once("functions.php");
                      include_once("api_base_url.php");
                      global $API_BASE_URL;
@@ -118,51 +112,35 @@
                         <input type="text" class="form-control" id="serialInput" name="serialnumber">
                    </div>
                         <button type="submit" class="btn btn-primary" name="search" value="Search">Search</button>
-                        <button type="submit" class="btn btn-warning" name="pagedown" value="pagedown">&lt</button>
-                        <?php echo '<span>' . ($page + 1) . '<span>';?> 
-                        <button type="submit" class="btn btn-warning" name="pageup" value="pageup">&gt</button>
-
-
                </form>
-                  <?php
-                     include_once("functions.php");
-                     include_once("api_base_url.php");
-                     global $API_BASE_URL;
+               <?php
+                   include_once("functions.php");
+                   include_once("api_base_url.php");
+                   global $API_BASE_URL;
 
-                  if(isset($_POST['pagedown'])) {
-                     $page--;
-                     if($page < 0) {
-                        $page = 0;
-                     }
-                     redirect("search.php?page=" . $page);
-                  }
-                  if(isset($_POST['pageup'])) {
-                     $page++;
-                     redirect("search.php?page=" . $page);
-                  }
-                if(isset($_POST['item_id'])) {
+                   if(isset($_POST['item_id'])) {
                    redirect("view.php?item_id=" . $_POST['item_id'] . "&edit_mode=false");
-                }
-                if (isset($_POST['search']))
-                {
-                    $deviceType=$_POST['deviceType'];
-                    $manufacturer=$_POST['manufacturer'];
-                    $serialNumber=trim($_POST['serialnumber']);
-                    $status=$_POST['status'];
-                    $prefix = "";
-                    $body = "";
-                    if($serialNumber) {
-                        validateSerialNumber($prefix, $body, $serialNumber);
-                    }
+                   }
+                   if (isset($_POST['search']))
+                   {
+                       $deviceType=$_POST['deviceType'];
+                       $manufacturer=$_POST['manufacturer'];
+                       $serialNumber=trim($_POST['serialnumber']);
+                       $status=$_POST['status'];
+                       $prefix = "";
+                       $body = "";
+                       if($serialNumber) {
+                           validateSerialNumber($prefix, $body, $serialNumber);
+                       }
 
-                    $searchPayload = [
-                        "device_type_id" => $deviceType,
-                        "manufacturer_id" => $manufacturer,
-                        "serial_number" => $serialNumber,
-                        "status_id" => $status
-                    ];
+                       $searchPayload = [
+                           "device_type_id" => $deviceType,
+                           "manufacturer_id" => $manufacturer,
+                           "serial_number" => $serialNumber,
+                           "status_id" => $status
+                       ];
 
-                    $res = callApi($API_BASE_URL . "/search_equipment", $searchPayload, 'GET');
+                       $res = callApi($API_BASE_URL . "/search_equipment", $searchPayload, 'GET');
                         echo '<br><table class="table table-bordered">
                         <tr>
                            <td>Manufacturer</td>
