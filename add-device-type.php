@@ -85,8 +85,7 @@
        }
 
        $newDeviceInfo = [
-          "device_type_name" => $deviceTypeName,
-          "device_type_status" => 1
+          "device_type_name" => $deviceTypeName
        ];
        global $API_BASE_URL;
        $res = callApi($API_BASE_URL . "/add_device_type", $newDeviceInfo ,"POST");
