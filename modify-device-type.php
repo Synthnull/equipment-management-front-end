@@ -48,24 +48,24 @@
       <section id="feature">
          <div class="container">
                <div class="row">
-                  <?php
-                        include("functions.php");
+                     <?php
+                       include_once("functions.php");
+                       include_once("api_base_url.php");
+                       global $API_BASE_URL;
+
                         $deviceTypes=array();
                         $statuses=array();
-                        $dblink=db_connect("equipment");
-                        $sql="Select `device_type_name`,`device_type_id` from `device_types`";
-                        $result=$dblink->query($sql) or 
-                           die("<p>Something went wrong with $sql<br>".$dblink->error);
-                        while ($data=$result->fetch_array(MYSQLI_ASSOC)) {
+
+                        $res = callApi($API_BASE_URL . "/get_device_types", [], 'GET');
+                        foreach ($res['data'] as $data) {
                            $deviceTypes[$data['device_type_id']]=$data['device_type_name'];
                         }
-
-                     $sql="Select `status_name`,`status_id` from `status`";
-                     $result=$dblink->query($sql) or 
-                        die("<p>Something went wrong with $sql<br>".$dblink->error);
-                     while ($data=$result->fetch_array(MYSQLI_ASSOC)) {
+                        
+                        $res = callApi($API_BASE_URL . "/get_statuses", [], 'GET');
+                        foreach ($res['data'] as $data) {
                         $statuses[$data['status_id']]=$data['status_name'];
-                     }
+                        }
+
                         if (isset($_REQUEST['msg']) && $_REQUEST['msg']=="deviceNameInvalid")
                         {
                             echo '<div class="alert alert-danger" role="alert">device type name is invalid.</div>';
@@ -111,34 +111,38 @@
 <?php
     if (isset($_POST['save']))
     {
-       $deviceTypeName=$_POST['new_device_type_name'];
+       include_once("functions.php");
+       include_once("api_base_url.php");
+       global $API_BASE_URL;
+
+       $newDeviceTypeName=$_POST['new_device_type_name'];
        $deviceType = $_POST['device_type'];
+       $oldDeviceTypeName = $deviceTypes[$_POST['device_type']];
        $status = $_POST['status'];
-       if($deviceTypeName) 
+       if($newDeviceTypeName) 
        {
-          if(!preg_match('/^[a-z\s]+$/', $deviceTypeName)) 
+          if(!preg_match('/^[a-z\s]+$/', $newDeviceTypeName)) 
           {
              redirect("modify-device-type.php?msg=deviceNameInvalid");
           }
+            
+          $payload = [
+             "device_type_name" => $newDeviceTypeName,
+             "status_id" => $status
+          ];
+       }else {
+          $payload = [
+             "device_type_name" => $oldDeviceTypeName,
+             "status_id" => $status
+          ];
+       }
 
-          $sql="Select `device_type_id` from `device_types` where `device_type_name`='$deviceTypeName' and `device_type_id`!='$deviceType'";
-          $rst=$dblink->query($sql) or
-                die("<p>Something went wrong with $sql<br>".$dblink->error);
-          if ($rst->num_rows<=0)//name not previously found
-          {
-            $sql="UPDATE `device_types` SET `device_type_name`='$deviceTypeName', `status_id`='$status' WHERE `device_type_id`='$deviceType'";
-            $dblink->query($sql) or
-                 die("<p>Something went wrong with $sql<br>".$dblink->error);
-            redirect("index.php?msg=deviceTypeEdited");
-          }
-          else {
-            redirect("modify-device-type.php?msg=deviceDuplicate");
-          }
-       } else 
+       $res = callApi($API_BASE_URL . "/modify_device_type_by_id/" . $deviceType, $payload, 'PUT');
+       if ($res['status'] === "Succcess")
        {
-       $sql="UPDATE `device_types` SET `status_id`='$status' WHERE `device_type_id`='$deviceType'";
-       $dblink->query($sql) or
-            die("<p>Something went wrong with $sql<br>".$dblink->error);
-       redirect("index.php?msg=deviceTypeEdited");
+          redirect("index.php?msg=deviceTypeEdited");
+       }
+       else {
+          redirect("modify-device-type.php?msg=deviceDuplicate");
        }
     }
