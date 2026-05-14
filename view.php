@@ -113,7 +113,7 @@
                             <?php
                               foreach($deviceTypes as $key=>$value) {
                                  $selected="";
-                                 if($itemData['device_id'] == $key) {
+                                 if($itemData['device_type_name'] == $key) {
                                     $selected="selected";
                                  } 
                                  echo '<option ' . $selected . ' value="'.$key.'">'.$value.'</option>';
@@ -127,7 +127,7 @@
                             <?php
                               foreach($manufacturers as $key=>$value) {
                                  $selected="";
-                                 if($itemData['manufacturer_id'] == $key) {
+                                 if($itemData['manufacturer_name'] == $key) {
                                      $selected="selected";
                                  } 
                                  echo '<option ' . $selected . ' value="'.$key.'">'.$value.'</option>';
