@@ -70,6 +70,8 @@
                </div>
           </div>
       </section>
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script> <!--import needed Jquery dependdancy from dropdown from google CDN-->
+   <script src="assets/js/bootstrap.min.js"></script>
 </body>
 </html>
 <?php
