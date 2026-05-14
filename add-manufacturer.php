@@ -84,18 +84,12 @@
        }
 
        $newManufacturerInfo = [
-          "device_type_name" => $manufacturerName,
+          "manufacturer_name" => $manufacturerName,
           "status_id" => 1
        ];
        global $API_BASE_URL;
        $res = callApi($API_BASE_URL . "/add_manufacturer", $newManufacturerInfo ,"POST");
-       if ($res['status'] == "Success") {
-            redirect("index.php?msg=DeviceTypeAdded");
-       }
-        else {
-           redirect("add-device-type.php?msg=DeviceTypeExists");
-        }
-
+       
        if ($res['status'] === "Success") {
             redirect("index.php?msg=ManufacturerAdded");
        }
