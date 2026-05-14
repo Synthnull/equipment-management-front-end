@@ -113,7 +113,7 @@
                             <?php
                               foreach($deviceTypes as $key=>$value) {
                                  $selected="";
-                                 if($itemData['device_type_name'] === $key) {
+                                 if($itemData['device_type_name'] === $value) {
                                     $selected="selected";
                                  } 
                                  echo '<option ' . $selected . ' value="'.$key.'">'.$value.'</option>';
