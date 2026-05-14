@@ -49,8 +49,6 @@
          <div class="container">
                <div class="row">
                    <?php 
-                        include("functions.php");
-                        $dblink=db_connect("equipment");
                         if (isset($_REQUEST['msg']) && $_REQUEST['msg']=="ManufacturerNameInvalid")
                         {
                             echo '<div class="alert alert-danger" role="alert">Manufacturer name is invalid.</div>';
@@ -74,6 +72,8 @@
 </body>
 </html>
 <?php
+    include_once('functions.php');
+    include_once('api_base_url.php');
     if (isset($_POST['submit']))
     {
        $manufacturerName=$_POST['manufacturer'];
@@ -83,17 +83,25 @@
           redirect("add-manufacturer.php?msg=ManufacturerNameInvalid");
        }
 
-       $sql="Select `manufacturer_id` from `manufacturers` where `manufacturer_name`='$manufacturerName'";
-       $rst=$dblink->query($sql) or
-             die("<p>Something went wrong with $sql<br>".$dblink->error);
-       if ($rst->num_rows<=0)//sn not previously found
-       {
-            $sql="Insert into `manufacturers` (`manufacturer_name`, `status_id`) values ('$manufacturerName', '1')";
-            $dblink->query($sql) or
-                 die("<p>Something went wrong with $sql<br>".$dblink->error);
+       $newManufacturerInfo = [
+          "device_type_name" => $manufacturerName,
+          "status_id" => 1
+       ];
+       global $API_BASE_URL;
+       $res = callApi($API_BASE_URL . '/add_manufacturer', $newManufacturerInfo ,"POST");
+       if ($res['status'] == "Success") {
+            redirect("index.php?msg=DeviceTypeAdded");
+       }
+        else {
+           redirect("add-device-type.php?msg=DeviceTypeExists");
+        }
+
+       if ($res['status'] === "Success") {
             redirect("index.php?msg=ManufacturerAdded");
        }
-        else
-            redirect("add-manufacturer.php?msg=ManufacturerExists");
+       else
+       {
+           redirect("add-manufacturer.php?msg=ManufacturerExists");
+       }
     }
 ?>
