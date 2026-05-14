@@ -138,7 +138,7 @@
        }
 
        $res = callApi($API_BASE_URL . "/modify_device_type_by_id/" . $deviceType, $payload, 'PUT');
-       if ($res['status'] === "Succcess")
+       if ($res['status'] === "Success")
        {
           redirect("index.php?msg=deviceTypeEdited");
        }
@@ -146,3 +146,4 @@
           redirect("modify-device-type.php?msg=deviceDuplicate");
        }
     }
+?>
