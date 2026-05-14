@@ -31,17 +31,14 @@
                     <ul class="nav navbar-nav navbar-nav-first">
                          <li><a href="index.php" class="smoothScroll">Home</a></li>
                          <li><a href="search.php" class="smoothScroll">Search Equipment</a></li>
-                    <div class="dropdown">
-                          <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                            Dropdown
-                            <span class="caret"></span>
-                          </button>
+                    <li class="dropdown">
+                          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Add<span class="caret"></span></a> 
                           <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
                               <li><a href="add.php" class="smoothScroll">Add Equipment</a></li>
                               <li><a href="add-device-type.php" class="smoothScroll">Add Device Type</a></li>
                               <li><a href="add-manufacturer.php" class="smoothScroll">Add Manufacturer</a></li>     
                           </ul>
-                     </div>
+                     </li>
                          <li><a href="modify-device-type.php" class="smoothScroll">Modify Device Type</a></li>
                          <li><a href="modify-manufacturer.php" class="smoothScroll">Modify Manufacturer</a></li>
                     </ul>
