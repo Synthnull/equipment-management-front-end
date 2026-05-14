@@ -53,31 +53,32 @@
                      }else {
                         $page = $_GET['page'];
                      }
-                     include("functions.php");
-                     $dblink=db_connect("equipment");
-                     $sql="Select `device_type_name`,`device_type_id` from `device_types` where `device_types`.`status_id` = '1'";
-                     $result=$dblink->query($sql) or
-                         die("<p>Something went wrong with $sql<br>".$dblink->error);
-                     $devices=array();
+                     
+                     include_once("functions.php");
+                     include_once("api_base_url.php");
+                     global $API_BASE_URL;
+
+
+
+                     $deviceTypes=array();
                      $manufacturers=array();
                      $statuses=array();
-                     $devices[0]='any';
+                     $deviceTypes[0]='any';
                      $manufacturers[0]='any';
                      $statuses[0]='any';
-                     while ($data=$result->fetch_array(MYSQLI_ASSOC)) {
-                        $devices[$data['device_type_id']]=$data['device_type_name'];
-                     }
-                     $sql="Select `manufacturer_name`,`manufacturer_id` from `manufacturers` where `manufacturers`.`status_id`='1'";
-                     $result=$dblink->query($sql) or 
-                        die("<p>Something went wrong with $sql<br>".$dblink->error);
-                     while ($data=$result->fetch_array(MYSQLI_ASSOC)) {
+                     
+                     $res = callApi($API_BASE_URL . "/get_device_types", [],'GET');
+                        foreach($res['data'] as $data) {
+                           $deviceTypes[$data['device_type_id']]=$data['device_type_name'];
+                        }
+
+                     $res = callApi($API_BASE_URL . "/get_manufacturers", [],'GET');
+                     foreach ($res['data'] as $data) {
                         $manufacturers[$data['manufacturer_id']]=$data['manufacturer_name'];
                      }
 
-                     $sql="Select `status_name`,`status_id` from `status`";
-                     $result=$dblink->query($sql) or 
-                        die("<p>Something went wrong with $sql<br>".$dblink->error);
-                     while ($data=$result->fetch_array(MYSQLI_ASSOC)) {
+                     $res = callApi($API_BASE_URL . "/get_statuses");
+                     foreach ($res['data'] as $data) {
                         $statuses[$data['status_id']]=$data['status_name'];
                      }
 
@@ -91,7 +92,7 @@
                         <label for="exampleDevice">Device:</label>
                         <select class="form-control" name="deviceType">
                             <?php
-                                foreach($devices as $key=>$value)
+                                foreach($deviceTypes as $key=>$value)
                                     echo '<option value="'.$key.'">'.$value.'</option>';
                             ?>
                         </select>
@@ -125,7 +126,11 @@
 
 
                </form>
-<?php
+                  <?php
+                     include_once("functions.php");
+                     include_once("api_base_url.php");
+                     global $API_BASE_URL;
+
                   if(isset($_POST['pagedown'])) {
                      $page--;
                      if($page < 0) {
@@ -151,44 +156,15 @@
                     if($serialNumber) {
                         validateSerialNumber($prefix, $body, $serialNumber);
                     }
-                    $sql = 'SELECT
-                   d.device_id,
-                   d.status_id,
-                   m.manufacturer_name, 
-                   dt.device_type_name, 
-                   d.serial_number_prefix, 
-                   d.serial_number_body,
-                   s.status_name
-               FROM devices AS d';
 
-                $sql .= ' JOIN manufacturers AS m ON d.manufacturer_id = m.manufacturer_id
-               JOIN device_types AS dt ON d.device_type_id = dt.device_type_id
-               JOIN status AS s ON d.status_id = s.status_id
-               WHERE 1=1';
+                    $searchPayload = [
+                        "device_type_id" => $deviceType,
+                        "manufacturer_id" => $manufacturer,
+                        "serial_number" => $serialNumber,
+                        "status_id" => $status
+                    ];
 
-                    if($deviceType != 0) {
-                       $sql .= " AND d.device_type_id='$deviceType' AND dt.status_id = '1'";
-                    }else {
-                       $sql .= " AND dt.status_id='1'";
-                    }
-
-                    if($manufacturer != 0) {
-                       $sql .= " AND d.manufacturer_id='$manufacturer' AND m.status_id = '1'";
-                    } else {
-                       $sql .= " AND m.status_id='1'";
-                    }
-
-                    if($serialNumber) {
-                       $sql .= " AND d.serial_number_body='$body' AND d.serial_number_prefix='$prefix'";
-                    }
-                    if($status != 0) {
-                       $sql .= " AND d.status_id='$status'";
-                    }
-                    $page = $_GET['page'];
-                    $offset = "25" * $page;
-                    $sql .= " LIMIT 25 OFFSET $offset";
-                    $result=$dblink->query($sql) or
-                         die("<p>Something went wrong with $sql<br>".$dblink->error);
+                    $res = callApi($API_BASE_URL . "/search_equipment", $searchPayload, 'GET');
                         echo '<br><table class="table table-bordered">
                         <tr>
                            <td>Manufacturer</td>
@@ -198,7 +174,7 @@
                            <td>View</td>
                         </tr>';
 
-                        while ($data = $result->fetch_assoc()) {
+                        foreach ($res['data'] as $data) {
                            echo ' <tr>
                               <td>' . $data['manufacturer_name'] . '</td>
                               <td>' . $data['device_type_name'] . '</td>
