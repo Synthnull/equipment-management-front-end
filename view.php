@@ -141,7 +141,7 @@
                         <?php
                         foreach($statuses as $key=>$value) {
                            $selected="";
-                           if($itemData['status_id'] === $value) {
+                           if($itemData['status_name'] === $value) {
                               $selected="selected";
                            } 
                            echo '<option ' . $selected . ' value="'.$key.'">'.$value.'</option>';
