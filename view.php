@@ -58,7 +58,7 @@
                      global $API_BASE_URL;
                      
                      $res = callApi($API_BASE_URL . "/get_equipment_by_id/" . $_GET['item_id'], [], 'GET');
-                     $data = $res['data'];
+                     $data = $res['data'][0];
                         echo '<h4>Device Type:</h4>
                               <p>' . $data['device_type_name'] . '</p>
                               <h4>Manufacturer:</h4>
