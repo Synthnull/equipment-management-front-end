@@ -78,6 +78,9 @@
                      include_once("functions.php");
                      include_once("api_base_url.php");
                      global $API_BASE_URL;
+                     
+                     $res = callApi($API_BASE_URL . "/get_equipment_by_id/" . $_GET['item_id'], [], 'GET');
+                     $itemData = $res['data'][0];
 
                      $deviceTypes=array();
                      $manufacturers=array();
@@ -110,7 +113,7 @@
                             <?php
                               foreach($deviceTypes as $key=>$value) {
                                  $selected="";
-                                 if($data['device_id'] == $key) {
+                                 if($itemData['device_id'] == $key) {
                                     $selected="selected";
                                  } 
                                  echo '<option ' . $selected . ' value="'.$key.'">'.$value.'</option>';
@@ -124,7 +127,7 @@
                             <?php
                               foreach($manufacturers as $key=>$value) {
                                  $selected="";
-                                 if($data['manufacturer_id'] == $key) {
+                                 if($itemData['manufacturer_id'] == $key) {
                                      $selected="selected";
                                  } 
                                  echo '<option ' . $selected . ' value="'.$key.'">'.$value.'</option>';
@@ -138,7 +141,7 @@
                         <?php
                         foreach($statuses as $key=>$value) {
                            $selected="";
-                           if($data['status_id'] == $key) {
+                           if($itemData['status_id'] == $key) {
                               $selected="selected";
                            } 
                            echo '<option ' . $selected . ' value="'.$key.'">'.$value.'</option>';
