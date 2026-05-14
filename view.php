@@ -194,7 +194,7 @@
             "status_id" => $status
         ];
 
-        $res = callApi($API_BASE_URL . "/modify_equipment_by_id", $overwrite, 'PUT');
+        $res = callApi($API_BASE_URL . "/modify_equipment_by_id/" . $_GET['item_id'], $overwrite, 'PUT');
 
         if ($res['status'] === "Success")
         {
