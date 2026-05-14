@@ -101,7 +101,7 @@
                         $statuses[$data['status_id']]=$data['status_name'];
                      }
 
-                  }
+                  
                   ?>
                   <form method="post" action="">
                     <div class="form-group">
@@ -153,7 +153,7 @@
                         <button type="submit" class="btn btn-success" name="save" value="Search">Save</button>
                         <button type="submit" class="btn btn-primary" name="view" value="Search">View</button>
                </form>
-               <?php  ?>
+               <?php  }?>
             </div>
           </div>
       </section>
