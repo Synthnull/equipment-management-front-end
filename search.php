@@ -67,17 +67,17 @@
                      $manufacturers[0]='any';
                      $statuses[0]='any';
                      
-                     $res = callApi($API_BASE_URL . "/get_device_types", [],'GET');
+                     $res = callApi($API_BASE_URL . "/get_device_types", [], 'GET');
                         foreach($res['data'] as $data) {
                            $deviceTypes[$data['device_type_id']]=$data['device_type_name'];
                         }
 
-                     $res = callApi($API_BASE_URL . "/get_manufacturers", [],'GET');
+                     $res = callApi($API_BASE_URL . "/get_manufacturers", [], 'GET');
                      foreach ($res['data'] as $data) {
                         $manufacturers[$data['manufacturer_id']]=$data['manufacturer_name'];
                      }
 
-                     $res = callApi($API_BASE_URL . "/get_statuses");
+                     $res = callApi($API_BASE_URL . "/get_statuses", [], 'GET');
                      foreach ($res['data'] as $data) {
                         $statuses[$data['status_id']]=$data['status_name'];
                      }
