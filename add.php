@@ -50,7 +50,7 @@
                <div class="row">
                    <?php 
                         include_once("functions.php");
-                        include_once("api_base_url");
+                        include_once("api_base_url.php");
                         global $API_BASE_URL;
 
                         $deviceTypes = array();
@@ -106,7 +106,7 @@
     if (isset($_POST['submit']))
     {
         include_once("functions.php");
-        include_once("api_base_url");
+        include_once("api_base_url.php");
         global $API_BASE_URL;
 
         $device=$_POST['device'];
